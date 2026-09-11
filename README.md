@@ -89,17 +89,11 @@ You can extend this list by editing `DEFAULT_TARGETS` in
 
 Grab the binary for your OS from the [latest release](https://github.com/noldee/rnpkill/releases/latest):
 
-```bash
-# Linux
-chmod +x rnpkill-linux
-sudo mv rnpkill-linux /usr/local/bin/rnpkill
+# mac & linux
+curl -fsSL https://raw.githubusercontent.com/noldee/rnpkill/main/install.sh | bash
 
-# macOS
-chmod +x rnpkill-macos
-sudo mv rnpkill-macos /usr/local/bin/rnpkill
-```
-
-On Windows, just double-click `rnpkill-windows.exe`, or add its folder to your `PATH` to run `rnpkill` from any terminal.
+# windows
+powershell -c "irm https://raw.githubusercontent.com/noldee/rnpkill/main/install.ps1 | iex"
 
 Then run it from anywhere:
 
