@@ -260,11 +260,11 @@ Benchmark on 27 `node_modules` folders (≈4 GB):
 - [x] Collapsible tree and themes
 - [x] `--older-than`, `--dry-run` filters
 - [x] JSON/CSV reports, history and statistics
+- [x] Standalone binaries via PyInstaller
 - [ ] Tests with `pytest`
 - [ ] PyPI release
 - [ ] Per-language plugins
-- [ ] Standalone binaries via PyInstaller
-
+      
 ---
 
 ## 🤝 Contributing
