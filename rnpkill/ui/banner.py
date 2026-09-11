@@ -1,4 +1,9 @@
-"""Banner ASCII con soporte de temas."""
+"""Banner ASCII — solo define el arte y la paleta.
+
+El render se delega completamente al menú (`prompt_toolkit`), que lo
+dibuja como primera línea del layout. Así evitamos el flash causado por
+imprimir con rich y luego limpiar la pantalla.
+"""
 from __future__ import annotations
 
 from rich.console import Console
@@ -16,27 +21,16 @@ BANNER_ASCII = r"""
 
 
 class Banner:
-    """Renderiza el banner de bienvenida con el tema activo."""
+    """Solo guarda la paleta activa; ya no imprime nada."""
 
     def __init__(self, console: Console | None = None, theme: str = "default") -> None:
-        """Inicializa el banner.
-
-        Args:
-            console: Console de rich (opcional, se crea uno si falta).
-            theme: Nombre del tema a usar.
-        """
         self._palette: ColorPalette = get_theme(theme)
         self._console = console or Console(theme=to_rich_theme(self._palette))
 
-    def render(self) -> None:
-        """Imprime el banner con la paleta del tema."""
-        self._console.print(f"[banner]{BANNER_ASCII}[/banner]")
-        self._console.print(
-            "[dim]  Busca y elimina carpetas pesadas de desarrollo "
-            "(node_modules, venv, .venv, env)[/dim]\n"
-        )
-
     @property
     def palette(self) -> ColorPalette:
-        """Paleta activa (útil para pasarla al menú)."""
         return self._palette
+
+    @property
+    def console(self) -> Console:
+        return self._console

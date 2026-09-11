@@ -1,16 +1,63 @@
 [project]
 name = "rnpkill"
 version = "0.1.0"
-description = "CLI interactiva para eliminar node_modules y venvs pesados."
+description = "A modern alternative to npkill: cleans node_modules, venvs, and other heavy dev folders with a collapsible tree UI, themes, age filters, and reports."
+readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.10"
+authors = [
+    { name = "Walter" },
+]
+keywords = [
+    "cli",
+    "cleaner",
+    "node_modules",
+    "venv",
+    "disk-space",
+    "developer-tools",
+    "npkill",
+    "cleanup",
+    "python",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Filesystems",
+    "Topic :: Utilities",
+]
 dependencies = [
     "questionary>=2.0.1",
     "rich>=13.7.0",
+    "prompt_toolkit>=3.0.43",
+    "tomli>=2.0.1; python_version < '3.11'",
 ]
+
+[project.urls]
+Homepage = "https://github.com/noldee/rnpkill"
+Repository = "https://github.com/noldee/rnpkill"
+Issues = "https://github.com/noldee/rnpkill/issues"
 
 [project.scripts]
 rnpkill = "main:main"
 
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["main"]
+packages = [
+    "rnpkill",
+    "rnpkill.core",
+    "rnpkill.ui",
+    "rnpkill.utils",
+]

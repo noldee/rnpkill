@@ -1,0 +1,1 @@
+"""Capa CLI: parsing de argumentos, comandos y orquestación."""
