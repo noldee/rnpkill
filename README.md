@@ -2,41 +2,48 @@
 
 # 🧹 rnpkill
 
-**Alternativa moderna a [`npkill`](https://github.com/voidcosmos/npkill), escrita en Python puro.**
+**A modern alternative to [`npkill`](https://github.com/voidcosmos/npkill), written in Python.**
 
-Encuentra y elimina `node_modules`, entornos virtuales y otras carpetas
-pesadas de desarrollo — con árbol plegable, temas, filtros por antigüedad
-y reportes históricos.
+Find and delete `node_modules`, virtual environments, and other heavy
+development folders — with a collapsible tree UI, themes, age filters,
+and historical reports.
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
+**English** | [Español](README.es.md)
+
 </div>
 
 ---
 
-## ✨ ¿Por qué otro limpiador de `node_modules`?
+## ✨ Why another `node_modules` cleaner?
 
-`npkill` es genial, pero está en Node.js y no cubre bien entornos
-Python, ni ofrece temas, ni permite filtrar por antigüedad o exportar
-reportes. **`rnpkill` sí.** Es Python puro, multiplataforma y con una
-UI pensada para ser cómoda de verdad.
+`npkill` is great, but it's built on Node.js, doesn't cover Python
+environments well, and lacks themes, age filters, and report exports.
+**`rnpkill` does.** It's pure Python, cross-platform, and with a UI
+designed to be actually pleasant to use.
 
-| Feature                         | npkill | **rnpkill** |
-| ------------------------------- | :----: | :---------: |
-| Detecta `node_modules`          |   ✅   |     ✅      |
-| Detecta `venv`, `.venv`, `env`  |   ❌   |     ✅      |
-| Detecta `__pycache__`, `.next`… |   ❌   |     ✅      |
-| Árbol plegable                  |   ❌   |     ✅      |
-| Temas (One Dark, Catppuccin…)   |   ❌   |     ✅      |
-| Filtro `--older-than 90d`       |   ❌   |     ✅      |
-| `--dry-run`                     |   ❌   |     ✅      |
-| Reportes JSON / CSV             |   ❌   |     ✅      |
-| Historial + estadísticas        |   ❌   |     ✅      |
-| Barra de progreso al borrar     |   ✅   |     ✅      |
-| Búsqueda incremental `/`        |   ❌   |     ✅      |
+| Feature                                    | npkill | **rnpkill** |
+| ------------------------------------------ | :----: | :---------: |
+| **Node.js** — `node_modules`               |   ✅   |     ✅      |
+| **Node.js** — `.next`, `.nuxt`, `.turbo`…  |   ❌   |     ✅      |
+| **Python** — `venv`, `.venv`, `env`        |   ❌   |     ✅      |
+| **Python** — `__pycache__`, `.tox`, caches |   ❌   |     ✅      |
+| **Rust** — `target`                        |   ❌   |     ✅      |
+| **Java / Kotlin** — `.gradle`, `.m2`       |   ❌   |     ✅      |
+| **Go / PHP / Laravel** — `vendor`          |   ❌   |     ✅      |
+| **Generic** — `dist`, `build`              |   ❌   |     ✅      |
+| Collapsible tree UI                        |   ❌   |     ✅      |
+| Themes (One Dark, Catppuccin…)             |   ❌   |     ✅      |
+| `--older-than 90d` filter                  |   ❌   |     ✅      |
+| `--dry-run`                                |   ❌   |     ✅      |
+| JSON / CSV reports                         |   ❌   |     ✅      |
+| History + statistics                       |   ❌   |     ✅      |
+| Progress bar while deleting                |   ✅   |     ✅      |
+| Incremental search `/`                     |   ❌   |     ✅      |
 
 ---
 
@@ -50,30 +57,30 @@ UI pensada para ser cómoda de verdad.
 ██║  ██║██║ ╚████║██║     ██║  ██╗██║███████╗███████╗
 ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝     ╚═╝  ╚═╝╚═╝╚══════╝╚══════╝
 
- Espacio total: 3.98 GB · 27 carpeta(s)
+ Total space: 3.98 GB · 27 folder(s)
 
  ▼ ~/projects
-   ❯ [X]  420.36 MB   3d   node_modules
-     [ ]  261.94 MB   1mo  .venv
+   ❯ [X]  420.36 MB   3d    node_modules
+     [ ]  261.94 MB   1mo   .venv
  ▼ ~/old-projects
-     [ ]  238.74 MB   8mo  node_modules
-     [ ]  181.69 MB   1y   node_modules
- ↑/↓ mover · ←/→ plegar · espacio marcar · s/n/d ordenar · / buscar · enter confirmar
+     [ ]  238.74 MB   8mo   node_modules
+     [ ]  181.69 MB   1y    node_modules
+ ↑/↓ move · ←/→ collapse · space select · s/n/d sort · / search · enter confirm
 ```
 
 ---
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### Requisitos
+### Requirements
 
 - Python **3.10+**
-- `du` (viene por defecto en Linux/macOS; en Windows se usa fallback puro Python)
+- `du` (bundled with Linux/macOS; on Windows a pure-Python fallback is used)
 
-### Desde el código fuente
+### From source
 
 ```bash
-git clone https://github.com/<tu-usuario>/rnpkill.git
+git clone https://github.com/noldee/rnpkill.git
 cd rnpkill
 python3 -m venv .venv
 source .venv/bin/activate      # Linux / macOS
@@ -81,14 +88,14 @@ source .venv/bin/activate      # Linux / macOS
 pip install -r requirements.txt
 ```
 
-### Instalación como comando global (recomendado)
+### Install as a global command (recommended)
 
 ```bash
 pip install -e .
 rnpkill ~/Projects
 ```
 
-O con `pipx` (aísla el entorno):
+Or with `pipx` (isolates the environment):
 
 ```bash
 pipx install git+https://github.com/noldee/rnpkill.git
@@ -96,39 +103,39 @@ pipx install git+https://github.com/noldee/rnpkill.git
 
 ---
 
-## 🎮 Uso
+## 🎮 Usage
 
-### Casos básicos
+### Basic cases
 
 ```bash
-# Escanear el directorio actual
+# Scan the current directory
 rnpkill
 
-# Escanear una ruta concreta
+# Scan a specific path
 rnpkill ~/Projects
 
-# Limitar profundidad (útil en discos grandes)
+# Limit recursion depth (useful on large disks)
 rnpkill ~/Projects --max-depth 4
 
-# Listado instantáneo sin calcular tamaños
+# Instant listing without computing sizes
 rnpkill ~/Projects --no-size
 ```
 
-### Filtros y preview
+### Filters and preview
 
 ```bash
-# Solo lo que no se toca en 90 días
+# Only folders untouched for 90 days
 rnpkill ~/Projects --older-than 90d
 
-# Simulación: muestra qué borraría, sin tocar nada
+# Simulation: shows what would be deleted, without touching anything
 rnpkill ~/Projects --dry-run
 
-# Exportar reporte de la sesión
-rnpkill ~/Projects --report ~/reporte.json
-rnpkill ~/Projects --report ~/reporte.csv
+# Export a session report
+rnpkill ~/Projects --report ~/report.json
+rnpkill ~/Projects --report ~/report.csv
 ```
 
-### Temas
+### Themes
 
 ```bash
 rnpkill ~/Projects --theme catppuccin
@@ -139,42 +146,43 @@ rnpkill ~/Projects --theme nord
 rnpkill ~/Projects --theme solarized
 ```
 
-### Historial y estadísticas
+### History and statistics
 
 ```bash
-rnpkill --history              # últimas 10 limpiezas
-rnpkill --stats                # total liberado histórico
-rnpkill --export-history h.csv # exportar todo a CSV
+rnpkill --history              # last 10 cleanups
+rnpkill --stats                # total freed historically
+rnpkill --export-history h.csv # export everything to CSV
 ```
 
 ---
 
-## ⌨️ Controles
+## ⌨️ Controls
 
-| Tecla             | Acción                                |
-| ----------------- | ------------------------------------- |
-| `↑` `↓` / `k` `j` | Navegar                               |
-| `←` `→` / `h` `l` | Plegar / desplegar proyecto           |
-| `espacio`         | Marcar / desmarcar (proyecto = todos) |
-| `a`               | Marcar / desmarcar todo               |
-| `s` / `n` / `d`   | Ordenar por tamaño / nombre / fecha   |
-| `p`               | Ordenar por ruta                      |
-| `/`               | Búsqueda incremental                  |
-| `enter`           | Confirmar selección                   |
-| `q` / `Esc`       | Cancelar y salir                      |
-| `Ctrl+C`          | Interrumpir                           |
+| Key               | Action                              |
+| ----------------- | ----------------------------------- |
+| `↑` `↓` / `k` `j` | Navigate                            |
+| `←` `→` / `h` `l` | Collapse / expand project           |
+| `space`           | Toggle selection (project = all)    |
+| `a`               | Toggle everything                   |
+| `s` / `n` / `d`   | Sort by size / name / date          |
+| `p`               | Sort by path                        |
+| `/`               | Incremental search                  |
+| `enter`           | Confirm selection                   |
+| `q` / `Esc`       | Cancel and exit                     |
+| `Ctrl+C`          | Interrupt                           |
 
 ---
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
-Diseñado siguiendo **SOLID**, **Clean Code** y separación estricta de capas:
+Designed following **SOLID**, **Clean Code**, and strict layer
+separation:
 
 ```
 rnpkill/
 ├── main.py                  # Composition root
 └── rnpkill/
-    ├── core/                # Dominio puro (sin UI, sin CLI)
+    ├── core/                # Pure domain (no UI, no CLI)
     │   ├── models.py
     │   ├── scanner.py
     │   ├── size_calculator.py
@@ -182,79 +190,79 @@ rnpkill/
     │   ├── age_filter.py
     │   ├── history.py
     │   └── reporter.py
-    ├── ui/                  # Presentación (prompt_toolkit + rich)
+    ├── ui/                  # Presentation (prompt_toolkit + rich)
     │   ├── banner.py
     │   ├── menu.py
     │   └── progress.py
-    └── utils/               # Helpers transversales
+    └── utils/               # Cross-cutting helpers
         ├── formatters.py
         ├── paths.py
         └── themes.py
 ```
 
-- **`core`** no depende de `ui` ni de `utils` de presentación.
-- **`ui`** depende de `core` (modelos) pero no al revés.
-- Cada módulo tiene **una sola responsabilidad** y es testeable aislado.
+- **`core`** does not depend on `ui` or presentation `utils`.
+- **`ui`** depends on `core` (models), never the other way around.
+- Each module has **a single responsibility** and is testable in isolation.
 
 ---
 
-## ⚡ Rendimiento
+## ⚡ Performance
 
-- En Linux/macOS usa `du -sb` (C nativo) → **50-100× más rápido** que
-  recorrer el árbol con Python puro.
-- En Windows cae a un walk paralelo con `ThreadPoolExecutor`.
-- Con `--no-size`, el listado es **instantáneo** incluso en discos con
-  cientos de miles de archivos.
+- On Linux/macOS it uses `du -sb` (native C) → **50-100× faster** than
+  walking the tree in pure Python.
+- On Windows it falls back to a parallel walk with `ThreadPoolExecutor`.
+- With `--no-size`, listing is **instantaneous** even on disks with
+  hundreds of thousands of files.
 
-Benchmark orientativo sobre 27 `node_modules` (≈4 GB):
+Benchmark on 27 `node_modules` folders (≈4 GB):
 
-| Método              | Tiempo   |
-| ------------------- | -------- |
-| Python puro         | ~180 s   |
-| Walk paralelo       | ~25 s    |
-| **`du -sb` + pool** | **~2 s** |
+| Method               | Time     |
+| -------------------- | -------- |
+| Pure Python          | ~180 s   |
+| Parallel walk        | ~25 s    |
+| **`du -sb` + pool**  | **~2 s** |
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] Escaneo rápido con `du`
-- [x] Árbol plegable y temas
-- [x] Filtros `--older-than`, `--dry-run`
-- [x] Reportes JSON/CSV, historial y estadísticas
-- [ ] Tests con `pytest`
-- [ ] Publicación en PyPI
-- [ ] Plugins por lenguaje
-- [ ] Binarios standalone con PyInstaller
+- [x] Fast scanning with `du`
+- [x] Collapsible tree and themes
+- [x] `--older-than`, `--dry-run` filters
+- [x] JSON/CSV reports, history and statistics
+- [ ] Tests with `pytest`
+- [ ] PyPI release
+- [ ] Per-language plugins
+- [ ] Standalone binaries via PyInstaller
 
 ---
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-Las PRs son bienvenidas. Antes de enviar:
+PRs are welcome. Before submitting:
 
-1. Haz fork del repo.
-2. Crea una rama: `git checkout -b feat/mi-feature`.
-3. Sigue la arquitectura existente (respeta SOLID/SRP).
-4. Añade type hints y docstrings.
-5. Abre la PR con descripción clara.
+1. Fork the repo.
+2. Create a branch: `git checkout -b feat/my-feature`.
+3. Follow the existing architecture (respect SOLID/SRP).
+4. Add type hints and docstrings.
+5. Open the PR with a clear description.
 
-Para bugs, abre un issue con:
+For bugs, open an issue with:
 
-- SO y versión de Python.
-- Comando exacto ejecutado.
-- Salida completa (incluyendo el traceback).
+- OS and Python version.
+- Exact command run.
+- Full output (including the traceback).
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-MIT © 2025 Walter — ver [LICENSE](LICENSE).
+MIT © 2025 Walter — see [LICENSE](LICENSE).
 
 ---
 
 <div align="center">
 
-**¿Te ahorró GB? Dale una ⭐ al repo.**
+**Saved you some GB? Give the repo a ⭐.**
 
 </div>
