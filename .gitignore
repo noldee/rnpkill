@@ -1,0 +1,83 @@
+# ─── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ─── Entornos virtuales ────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# ─── Testing / cobertura ───────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# ─── Packaging / build ─────────────────────────────────
+*.whl
+*.tar.gz
+pip-wheel-metadata/
+
+# ─── Editores / IDEs ───────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim/
+*.code-workspace
+
+# ─── Sistema operativo ─────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── rnpkill específico ────────────────────────────────
+# Nunca subir historial local, reportes de prueba ni cachés
+*.log
+reporte*.json
+reporte*.csv
+historial*.csv
+.rnpkill/
+
+# ─── Secretos ──────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key

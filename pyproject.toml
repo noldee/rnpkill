@@ -1,0 +1,16 @@
+[project]
+name = "rnpkill"
+version = "0.1.0"
+description = "CLI interactiva para eliminar node_modules y venvs pesados."
+requires-python = ">=3.10"
+dependencies = [
+    "questionary>=2.0.1",
+    "rich>=13.7.0",
+]
+
+[project.scripts]
+rnpkill = "main:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
