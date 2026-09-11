@@ -91,7 +91,7 @@ rnpkill ~/Projects
 O con `pipx` (aísla el entorno):
 
 ```bash
-pipx install git+https://github.com/<tu-usuario>/rnpkill.git
+pipx install git+https://github.com/noldee/rnpkill.git
 ```
 
 ---
