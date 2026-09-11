@@ -90,11 +90,13 @@ You can extend this list by editing `DEFAULT_TARGETS` in
 Grab the binary for your OS from the [latest release](https://github.com/noldee/rnpkill/releases/latest):
 
 # mac & linux
+```bash
 curl -fsSL https://raw.githubusercontent.com/noldee/rnpkill/main/install.sh | bash
-
+```
 # windows
+```bash
 powershell -c "irm https://raw.githubusercontent.com/noldee/rnpkill/main/install.ps1 | iex"
-
+```
 Then run it from anywhere:
 
 ```bash
