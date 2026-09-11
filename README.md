@@ -40,6 +40,7 @@ designed to be actually pleasant to use.
 | Themes (One Dark, Catppuccin…)             |   ❌   |     ✅      |
 | `--older-than 90d` filter                  |   ❌   |     ✅      |
 | `--dry-run`                                |   ✅   |     ✅      |
+| **`--no-size` (instant scan)**             |   ❌   |     ✅      |
 | JSON / CSV reports                         |   ❌   |     ✅      |
 | History + statistics                       |   ❌   |     ✅      |
 | Progress bar while deleting                |   ✅   |     ✅      |
@@ -83,20 +84,23 @@ You can extend this list by editing `DEFAULT_TARGETS` in
 ```
 
 ---
+
 ## 🚀 Installation
 
 ### Option 1: Download a prebuilt binary (no Python required)
 
 Grab the binary for your OS from the [latest release](https://github.com/noldee/rnpkill/releases/latest):
 
-# mac & linux
+**macOS & Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/noldee/rnpkill/main/install.sh | bash
 ```
-# windows
-```bash
+
+**Windows (PowerShell):**
+```powershell
 powershell -c "irm https://raw.githubusercontent.com/noldee/rnpkill/main/install.ps1 | iex"
 ```
+
 Then run it from anywhere:
 
 ```bash
@@ -129,6 +133,8 @@ Or with `pipx` (isolates the environment):
 pipx install git+https://github.com/noldee/rnpkill.git
 ```
 
+---
+
 ## 🎮 Usage
 
 ### Basic cases
@@ -144,8 +150,14 @@ rnpkill ~/Projects
 rnpkill ~/Projects --max-depth 4
 
 # Instant listing without computing sizes
+# Useful on slow disks (external HDD, NTFS via ntfs-3g, network drives)
 rnpkill ~/Projects --no-size
 ```
+
+> **Performance tip**: On network drives, external HDDs, or NTFS partitions
+> mounted on Linux, computing sizes can be slow because the OS must read
+> metadata for every file. Use `--no-size` to list folders instantly and
+> skip the size measurement step.
 
 ### Filters and preview
 
@@ -180,6 +192,21 @@ rnpkill --stats                # total freed historically
 rnpkill --export-history h.csv # export everything to CSV
 ```
 
+### Full CLI reference
+
+| Flag                | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| `path`              | Root directory to scan (default: current dir)        |
+| `--max-depth N`     | Limit recursion depth                                |
+| `--no-size`         | Skip size measurement (instant listing)              |
+| `--older-than X`    | Only folders untouched for X (e.g. `90d`, `6m`, `1y`) |
+| `--dry-run`         | Show what would be deleted, without deleting         |
+| `--report FILE`     | Export a JSON or CSV report of the session           |
+| `--theme NAME`      | UI theme (default, one-dark, catppuccin…)            |
+| `--history`         | Show the last 10 cleanups and exit                   |
+| `--stats`           | Show aggregate statistics and exit                   |
+| `--export-history F`| Export the full history to a CSV file and exit       |
+
 ---
 
 ## ⌨️ Controls
@@ -206,29 +233,44 @@ separation:
 
 ```
 rnpkill/
-├── main.py                  # Composition root
+├── main.py                      # Composition root (thin entry point)
 └── rnpkill/
-    ├── core/                # Pure domain (no UI, no CLI)
-    │   ├── models.py
-    │   ├── scanner.py
-    │   ├── size_calculator.py
-    │   ├── deleter.py
-    │   ├── age_filter.py
-    │   ├── history.py
-    │   └── reporter.py
-    ├── ui/                  # Presentation (prompt_toolkit + rich)
-    │   ├── banner.py
-    │   ├── menu.py
-    │   └── progress.py
-    └── utils/               # Cross-cutting helpers
-        ├── formatters.py
-        ├── paths.py
-        └── themes.py
+    ├── __main__.py              # Enables `python -m rnpkill`
+    ├── cli/                     # Command-line layer
+    │   ├── args.py              # argparse definitions
+    │   ├── commands.py          # --history, --stats, --export-history
+    │   └── app.py               # RnpkillApp orchestrator
+    ├── core/                    # Pure domain (no UI, no CLI)
+    │   ├── models.py            # TargetFolder, Project
+    │   ├── scanner.py           # Filesystem walker
+    │   ├── size_calculator.py   # Fast size measurement (du / parallel)
+    │   ├── deleter.py           # Safe deletion with error handling
+    │   ├── age_filter.py        # --older-than parsing & filtering
+    │   ├── history.py           # Persistent history (JSONL)
+    │   └── reporter.py          # JSON / CSV reports
+    ├── ui/                      # Presentation (prompt_toolkit + rich)
+    │   ├── banner.py            # ASCII banner + palette
+    │   ├── menu.py              # Menu orchestrator
+    │   ├── navigation.py        # Cursor, grouping, selection state
+    │   ├── renderer.py          # Text formatting (rows, summary, help)
+    │   ├── layout_builder.py    # prompt_toolkit layout assembly
+    │   ├── keybindings.py       # Keyboard shortcuts
+    │   └── progress.py          # Deletion progress bar
+    └── utils/                   # Cross-cutting helpers
+        ├── formatters.py        # bytes → MB/GB
+        ├── paths.py             # Cross-platform path & XDG helpers
+        ├── terminal.py          # Terminal clear / detection
+        └── themes.py            # Color themes (One Dark, Catppuccin…)
 ```
 
-- **`core`** does not depend on `ui` or presentation `utils`.
-- **`ui`** depends on `core` (models), never the other way around.
-- Each module has **a single responsibility** and is testable in isolation.
+### Layer rules
+
+- **`cli/`** — Parses arguments and orchestrates. Depends on `core` and `ui`.
+- **`core/`** — Pure domain logic. **Does not depend** on `ui`, `cli`, or presentation `utils`.
+- **`ui/`** — Presentation layer. Depends on `core` (models only), never the other way around.
+- **`utils/`** — Cross-cutting helpers. No business logic.
+
+Each module has **a single responsibility** and is testable in isolation.
 
 ---
 
@@ -240,13 +282,18 @@ rnpkill/
 - With `--no-size`, listing is **instantaneous** even on disks with
   hundreds of thousands of files.
 
-Benchmark on 27 `node_modules` folders (≈4 GB):
+Benchmark on 27 `node_modules` folders (≈4 GB) on a **SATA SSD**:
 
 | Method               | Time     |
 | -------------------- | -------- |
 | Pure Python          | ~180 s   |
 | Parallel walk        | ~25 s    |
 | **`du -sb` + pool**  | **~2 s** |
+
+> ⚠️ **Note about slow filesystems**: On external HDDs, network drives, or
+> NTFS partitions mounted via `ntfs-3g` on Linux, size measurement can be
+> 100× slower because the OS reads metadata for every file. In those cases,
+> use `--no-size` for an instant listing.
 
 ---
 
@@ -255,12 +302,13 @@ Benchmark on 27 `node_modules` folders (≈4 GB):
 - [x] Fast scanning with `du`
 - [x] Collapsible tree and themes
 - [x] `--older-than`, `--dry-run` filters
+- [x] `--no-size` for slow filesystems
 - [x] JSON/CSV reports, history and statistics
 - [x] Standalone binaries via PyInstaller
 - [ ] Tests with `pytest`
 - [ ] PyPI release
 - [ ] Per-language plugins
-      
+
 ---
 
 ## 🤝 Contributing
