@@ -83,15 +83,33 @@ You can extend this list by editing `DEFAULT_TARGETS` in
 ```
 
 ---
-
 ## 🚀 Installation
 
-### Requirements
+### Option 1: Download a prebuilt binary (no Python required)
 
-- Python **3.10+**
-- `du` (bundled with Linux/macOS; on Windows a pure-Python fallback is used)
+Grab the binary for your OS from the [latest release](https://github.com/noldee/rnpkill/releases/latest):
 
-### From source
+```bash
+# Linux
+chmod +x rnpkill-linux
+sudo mv rnpkill-linux /usr/local/bin/rnpkill
+
+# macOS
+chmod +x rnpkill-macos
+sudo mv rnpkill-macos /usr/local/bin/rnpkill
+```
+
+On Windows, just double-click `rnpkill-windows.exe`, or add its folder to your `PATH` to run `rnpkill` from any terminal.
+
+Then run it from anywhere:
+
+```bash
+rnpkill
+```
+
+> On macOS you may need to right-click → Open the first time (Gatekeeper), since the binary isn't code-signed.
+
+### Option 2: From source (requires Python 3.10+)
 
 ```bash
 git clone https://github.com/noldee/rnpkill.git
@@ -102,7 +120,7 @@ source .venv/bin/activate      # Linux / macOS
 pip install -r requirements.txt
 ```
 
-### Install as a global command (recommended)
+Install as a global command:
 
 ```bash
 pip install -e .
@@ -114,8 +132,6 @@ Or with `pipx` (isolates the environment):
 ```bash
 pipx install git+https://github.com/noldee/rnpkill.git
 ```
-
----
 
 ## 🎮 Usage
 
@@ -244,11 +260,11 @@ Benchmark on 27 `node_modules` folders (≈4 GB):
 - [x] Collapsible tree and themes
 - [x] `--older-than`, `--dry-run` filters
 - [x] JSON/CSV reports, history and statistics
+- [x] Standalone binaries via PyInstaller
 - [ ] Tests with `pytest`
 - [ ] PyPI release
 - [ ] Per-language plugins
-- [ ] Standalone binaries via PyInstaller
-
+      
 ---
 
 ## 🤝 Contributing
