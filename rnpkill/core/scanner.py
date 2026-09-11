@@ -12,7 +12,32 @@ from typing import Final, Iterable
 from rnpkill.core.models import Project, TargetFolder
 
 DEFAULT_TARGETS: Final[frozenset[str]] = frozenset(
-    {"node_modules", "venv", ".venv", "env"}
+    {
+        # JavaScript / Node
+        "node_modules",
+        ".next",
+        ".nuxt",
+        ".parcel-cache",
+        ".turbo",
+        ".svelte-kit",
+        # Python
+        "venv",
+        ".venv",
+        "env",
+        "__pycache__",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".tox",
+        # Rust / Java / Go / PHP
+        "target",
+        ".gradle",
+        ".m2",
+        "vendor",
+        # Bundlers genéricos
+        "dist",
+        "build",
+    }
 )
 
 DEFAULT_EXCLUDES: Final[frozenset[str]] = frozenset(
@@ -85,8 +110,15 @@ class ProjectScanner:
             found: list[TargetFolder] = []
             for name in list(dirnames):
                 if name in self._targets:
-                    found.append(TargetFolder(name=name, path=current / name))
-                    dirnames.remove(name)  # no descender dentro del target
+                    target_path = current / name
+                    try:
+                        mtime = target_path.stat().st_mtime
+                    except OSError:
+                        mtime = 0.0
+                    found.append(
+                        TargetFolder(name=name, path=target_path, mtime=mtime)
+                    )
+                    dirnames.remove(name)
 
             if found:
                 projects.append(Project(path=current, targets=found))

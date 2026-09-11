@@ -1,8 +1,4 @@
-"""Modelos de dominio de rnpkill.
-
-Contiene las dataclasses que representan entidades del negocio:
-carpetas objetivo (node_modules, venv) y proyectos que las contienen.
-"""
+"""Modelos de dominio de rnpkill."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -16,12 +12,14 @@ class TargetFolder:
     Attributes:
         name: Nombre del directorio (``node_modules``, ``venv``, etc.).
         path: Ruta absoluta al directorio.
-        size_bytes: Tamaño ocupado en bytes (calculado por SizeCalculator).
+        size_bytes: Tamaño ocupado en bytes.
+        mtime: Timestamp de modificación (segundos epoch).
     """
 
     name: str
     path: Path
     size_bytes: int = 0
+    mtime: float = 0.0
 
     @property
     def display_name(self) -> str:
@@ -31,12 +29,7 @@ class TargetFolder:
 
 @dataclass(slots=True)
 class Project:
-    """Proyecto detectado que contiene una o más carpetas objetivo.
-
-    Attributes:
-        path: Directorio raíz del proyecto.
-        targets: Carpetas objetivo encontradas dentro del proyecto.
-    """
+    """Proyecto detectado que contiene una o más carpetas objetivo."""
 
     path: Path
     targets: list[TargetFolder] = field(default_factory=list)

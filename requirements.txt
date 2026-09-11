@@ -1,3 +1,4 @@
 questionary>=2.0.1
 rich>=13.7.0
 prompt_toolkit>=3.0.43
+tomli>=2.0.1; python_version < "3.11"
