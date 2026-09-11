@@ -21,8 +21,8 @@ and historical reports.
 
 ## ✨ Why another `node_modules` cleaner?
 
-`npkill` is great, but it's built on Node.js, doesn't cover Python
-environments well, and lacks themes, age filters, and report exports.
+`npkill` is great, but it's built on Node.js, only targets `node_modules`
+out of the box, and lacks themes, age filters, and report exports.
 **`rnpkill` does.** It's pure Python, cross-platform, and with a UI
 designed to be actually pleasant to use.
 
@@ -39,11 +39,25 @@ designed to be actually pleasant to use.
 | Collapsible tree UI                        |   ❌   |     ✅      |
 | Themes (One Dark, Catppuccin…)             |   ❌   |     ✅      |
 | `--older-than 90d` filter                  |   ❌   |     ✅      |
-| `--dry-run`                                |   ❌   |     ✅      |
+| `--dry-run`                                |   ✅   |     ✅      |
 | JSON / CSV reports                         |   ❌   |     ✅      |
 | History + statistics                       |   ❌   |     ✅      |
 | Progress bar while deleting                |   ✅   |     ✅      |
 | Incremental search `/`                     |   ❌   |     ✅      |
+
+### What it detects out of the box
+
+| Ecosystem              | Folders                                                          |
+| ---------------------- | ---------------------------------------------------------------- |
+| **Node.js / JS / TS**  | `node_modules`, `.next`, `.nuxt`, `.parcel-cache`, `.turbo`, `.svelte-kit` |
+| **Python**             | `venv`, `.venv`, `env`, `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.tox` |
+| **Rust**               | `target`                                                         |
+| **Java / Kotlin**      | `.gradle`, `.m2`                                                 |
+| **Go / PHP / Laravel** | `vendor`                                                         |
+| **Generic bundlers**   | `dist`, `build`                                                  |
+
+You can extend this list by editing `DEFAULT_TARGETS` in
+[`rnpkill/core/scanner.py`](rnpkill/core/scanner.py).
 
 ---
 
