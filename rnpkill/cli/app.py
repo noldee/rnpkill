@@ -10,7 +10,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import questionary
 from rich.console import Console
 from rich.table import Table
 
@@ -23,7 +22,6 @@ from rnpkill.core.scanner import ProjectScanner
 from rnpkill.core.size_calculator import SizeCalculator
 from rnpkill.ui.banner import BANNER_ASCII
 from rnpkill.ui.menu import TargetMenu
-from rnpkill.ui.progress import deletion_progress
 from rnpkill.utils.formatters import format_bytes
 from rnpkill.utils.themes import get_theme, to_rich_theme
 
@@ -47,7 +45,11 @@ class RnpkillApp:
         self._scanner = ProjectScanner(max_depth=max_depth)
         self._sizer = SizeCalculator()
         self._deleter = DirectoryDeleter()
-        self._menu = TargetMenu(BANNER_ASCII, theme=theme)
+        self._menu = TargetMenu(
+            BANNER_ASCII,
+            theme=theme,
+            deleter=self._deleter,
+        )
         self._history = HistoryStore()
         self._age_filter = AgeFilter.from_expression(older_than)
 
@@ -82,26 +84,39 @@ class RnpkillApp:
         if self._report:
             self._write_report(targets)
 
+        # Modo dry-run: el menú solo selecciona, no borra
+        measurer = None if self._dry_run else self._measure_in_background
+
         selected = self._menu.select(
             targets,
             total_bytes=total_bytes,
             scan_seconds=scan_seconds,
+            measurer=measurer,
         )
 
         if not selected:
             return 0
 
+        # ─── Dry-run: mostrar tabla y salir ───────────────────────
         if self._dry_run:
             self._print_dry_run(selected)
             return 0
 
-        return self._confirm_and_delete(selected)
+        # ─── El menú ya borró en el thread; solo registrar historial ──
+        freed = sum(t.size_bytes for t in selected if t.is_deleted)
+        errors = sum(1 for t in selected if t.has_delete_error)
+        deleted_paths = [str(t.path) for t in selected if t.is_deleted]
+
+        self._record_history(freed, errors, deleted_paths)
+        self._print_summary(freed, errors)
+
+        return 2 if errors else 0
 
     # ------------------------------------------------------------------ #
     # Descubrimiento
     # ------------------------------------------------------------------ #
     def _discover_targets(self, root: Path) -> list[TargetFolder]:
-        """Escanea y mide tamaños en paralelo."""
+        """Escanea y mide tamaños en paralelo (bloqueante)."""
         projects = self._scanner.scan(root)
         targets: list[TargetFolder] = []
         for project in projects:
@@ -127,13 +142,41 @@ class RnpkillApp:
                         target.size_bytes = 0
         return targets
 
+    def _measure_in_background(self, state, on_update) -> None:
+        """Mide tamaños en background para el menú (no bloqueante).
+
+        Args:
+            state: ``NavigationState`` con las carpetas a medir.
+            on_update: Callback ``(path, size, error)`` por cada medida.
+        """
+        targets = state.all_targets
+        if not targets:
+            return
+
+        def _measure_one(t: TargetFolder) -> tuple[TargetFolder, int, str | None]:
+            try:
+                size = self._sizer.calculate(t.path)
+                return t, size, None
+            except Exception as exc:  # noqa: BLE001
+                return t, 0, str(exc)
+
+        def _run() -> None:
+            with ThreadPoolExecutor(max_workers=16) as executor:
+                futures = [executor.submit(_measure_one, t) for t in targets]
+                for future in as_completed(futures):
+                    target, size, error = future.result()
+                    on_update(str(target.path), size, error)
+
+        import threading
+        threading.Thread(target=_run, daemon=True).start()
+
     def _apply_age_filter(
         self, targets: list[TargetFolder]
     ) -> list[TargetFolder]:
         """Aplica ``--older-than`` y avisa al usuario si filtró algo."""
         before = len(targets)
         filtered = self._age_filter.apply(targets)
-        if self._age_filter._threshold is not None:
+        if self._age_filter.is_active:
             self._console.print(
                 f"[dim]Filtrado por antigüedad: {len(filtered)}/{before} "
                 f"carpetas coinciden.[/dim]"
@@ -161,7 +204,8 @@ class RnpkillApp:
             )
 
     def _print_dry_run(self, selected: list[TargetFolder]) -> None:
-        table = Table(title="[bold]DRY RUN — no se borrará nada[/bold]")
+        """Tabla con las carpetas que se habrían borrado (dry-run)."""
+        table = Table(title="[bold]DRY RUN — no se borró nada[/bold]")
         table.add_column("Tamaño", justify="right", style="primary")
         table.add_column("Ruta")
         for t in sorted(selected, key=lambda x: -x.size_bytes):
@@ -169,52 +213,8 @@ class RnpkillApp:
         self._console.print(table)
 
     # ------------------------------------------------------------------ #
-    # Confirmación y borrado
+    # Historial y resumen
     # ------------------------------------------------------------------ #
-    def _confirm_and_delete(self, selected: list[TargetFolder]) -> int:
-        total = sum(t.size_bytes for t in selected)
-        self._console.print(
-            f"\n[bold]Se eliminarán [danger]{len(selected)}[/danger] carpetas "
-            f"([primary]{format_bytes(total)}[/primary]).[/bold]"
-        )
-
-        if not questionary.confirm("¿Continuar?", default=False).ask():
-            self._console.print("[yellow]Cancelado.[/yellow]")
-            return 0
-
-        freed, errors, deleted_paths = self._delete_all(selected)
-        self._record_history(freed, errors, deleted_paths)
-        self._print_summary(freed, errors)
-
-        return 2 if errors else 0
-
-    def _delete_all(
-        self, selected: list[TargetFolder]
-    ) -> tuple[int, int, list[str]]:
-        """Borra todas las carpetas y devuelve (liberado, errores, rutas)."""
-        freed = 0
-        errors = 0
-        deleted_paths: list[str] = []
-
-        with deletion_progress(
-            len(selected), self._console, self._theme
-        ) as progress:
-            task = progress.add_task("Eliminando…", total=len(selected))
-            for target in selected:
-                progress.update(task, description=f"→ {target.display_name}")
-                result = self._deleter.delete(target.path, target.size_bytes)
-                if result.success:
-                    freed += result.freed_bytes
-                    deleted_paths.append(str(target.path))
-                else:
-                    errors += 1
-                    progress.console.print(
-                        f"[danger]✗[/danger] {target.display_name} — "
-                        f"{result.error}"
-                    )
-                progress.advance(task)
-        return freed, errors, deleted_paths
-
     def _record_history(
         self, freed: int, errors: int, paths: list[str]
     ) -> None:

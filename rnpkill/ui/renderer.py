@@ -114,10 +114,24 @@ class MenuRenderer:
         pointer = "❯" if is_cursor else " "
         size = format_bytes(target.size_bytes)
         age = human_age(target.mtime)
-        style = "class:selected" if is_cursor else ""
+
+        # ─── Prefijo de estado de borrado ────────────────────────
+        if target.is_deleting:
+            prefix = "[DELETING...]"
+            style = "class:deleting"
+        elif target.is_deleted:
+            prefix = "[DELETE ✓  ]"
+            style = "class:deleted"
+        elif target.has_delete_error:
+            prefix = "[DELETE ✗  ]"
+            style = "class:delete-error"
+        else:
+            prefix = "            "  # 12 espacios para alinear
+            style = "class:selected" if is_cursor else ""
+
         return (
             style,
-            f"   {pointer} [{check}] {size:>10}  {age:>8}  {target.name}\n",
+            f" {prefix} {pointer} [{check}] {size:>10}  {age:>8}  {target.name}\n",
         )
 
     # ------------------------------------------------------------------ #
@@ -133,6 +147,18 @@ class MenuRenderer:
                     ("class:dim", "(enter aplicar · esc cancelar)"),
                 ]
             )
+
+        if any(t.is_deleting for t in state.all_targets):
+            return FormattedText(
+                [("class:deleting", " ⏳ Borrando carpetas seleccionadas…")]
+            )
+
+        # Nuevo: cuando hay algo ya borrado en la sesión
+        if any(t.is_deleted for t in state.all_targets):
+            return FormattedText(
+                [("class:deleted", " ✓ Listo · sigue marcando o pulsa q para salir")]
+            )
+
         return FormattedText(
             [("class:help", HELP_TEXT + f" [orden: {state.order}]")]
         )
