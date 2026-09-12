@@ -170,7 +170,6 @@ def to_rich_theme(palette: ColorPalette) -> RichTheme:
 
 
 def to_prompt_style(palette: ColorPalette) -> PtStyle:
-    """Convierte la paleta a un ``prompt_toolkit.Style``."""
     return PtStyle.from_dict(
         {
             "banner": f"bold {palette.banner}",
@@ -182,5 +181,9 @@ def to_prompt_style(palette: ColorPalette) -> PtStyle:
             "danger": palette.danger,
             "help": f"bg:{palette.help_bg} {palette.help_fg}",
             "tree": palette.primary,
+            # ─── Estados de borrado ─────────────────────────────
+            "deleting": f"bold {palette.summary}",      # amarillo/verde según tema
+            "deleted": f"bold {palette.success}",       # verde
+            "delete-error": f"bold {palette.danger}",   # rojo
         }
     )

@@ -59,6 +59,11 @@ class AgeFilter:
         """
         self._threshold = older_than_seconds
 
+    @property
+    def is_active(self) -> bool:
+        """True si hay un umbral configurado (es decir, --older-than se usó)."""
+        return self._threshold is not None
+
     @classmethod
     def from_expression(cls, expr: str | None) -> "AgeFilter":
         """Construye el filtro desde una expresión CLI."""

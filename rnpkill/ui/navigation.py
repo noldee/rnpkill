@@ -135,6 +135,8 @@ class NavigationState:
     # ------------------------------------------------------------------ #
     def toggle_current(self) -> None:
         """Marca/desmarca fila actual. En proyecto, marca todos sus hijos."""
+        if not self.rows:
+            return
         kind, target = self.rows[self.cursor]
         if kind == "project":
             proj = self.project_order[self.project_index_at(self.cursor)]
@@ -195,3 +197,82 @@ class NavigationState:
         if order in ORDERS:
             self.order = order
             self.regroup()
+
+    # ------------------------------------------------------------------ #
+    # Actualización en vivo de tamaños
+    # ------------------------------------------------------------------ #
+    def mark_all_measuring(self) -> None:
+        """Marca todas las carpetas como 'midiendo' antes de empezar."""
+        for t in self.all_targets:
+            t.measuring = True
+
+    def apply_size_update(
+        self,
+        path: str,
+        size: int,
+        error: str | None = None,
+    ) -> bool:
+        """Actualiza el tamaño de una carpeta.
+
+        Args:
+            path: Ruta de la carpeta a actualizar.
+            size: Tamaño en bytes.
+            error: Mensaje si la medición falló.
+
+        Returns:
+            True si encontró la carpeta y actualizó, False si no existe.
+        """
+        for t in self.all_targets:
+            if str(t.path) == path:
+                t.measuring = False
+                if error:
+                    t.measure_error = error
+                    t.size_bytes = 0
+                else:
+                    t.size_bytes = size
+                return True
+        return False
+
+    @property
+    def all_measured(self) -> bool:
+        """True si ya no queda ninguna carpeta midiéndose."""
+        return all(not t.measuring for t in self.all_targets)
+
+    # ------------------------------------------------------------------ #
+    # Estado de borrado
+    # ------------------------------------------------------------------ #
+    def mark_deleting(self, path: str) -> bool:
+        """Marca una carpeta como 'deleting'. Devuelve True si la encontró."""
+        for t in self.all_targets:
+            if str(t.path) == path:
+                t.deleting_state = "deleting"
+                t.delete_error = None
+                return True
+        return False
+
+    def mark_deleted(self, path: str, error: str | None = None) -> bool:
+        """Marca una carpeta como 'done' o 'error'."""
+        for t in self.all_targets:
+            if str(t.path) == path:
+                if error:
+                    t.deleting_state = "error"
+                    t.delete_error = error
+                else:
+                    t.deleting_state = "done"
+                return True
+        return False
+
+    def remove_deleted(self, path: str) -> bool:
+        """Quita una carpeta del listado (tras borrarse)."""
+        before = len(self.all_targets)
+        self.all_targets = [t for t in self.all_targets if str(t.path) != path]
+        if len(self.all_targets) != before:
+            self.selected_paths.discard(path)
+            self.regroup()
+            return True
+        return False
+
+    @property
+    def deletion_done(self) -> bool:
+        """True si ya no queda nada en estado 'deleting'."""
+        return not any(t.is_deleting for t in self.all_targets)
