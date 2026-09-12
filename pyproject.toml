@@ -47,14 +47,13 @@ Repository = "https://github.com/noldee/rnpkill"
 Issues = "https://github.com/noldee/rnpkill/issues"
 
 [project.scripts]
-rnpkill = "main:main"
+rnpkill = "rnpkill.cli.main:main"
 
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["main"]
 packages = [
     "rnpkill",
     "rnpkill.cli",
